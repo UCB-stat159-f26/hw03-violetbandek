@@ -25,7 +25,7 @@ def test_plot_missing_columns():
 
 def test_unknown_player():
     """An unsupported player should raise a meaningful error."""
-    with pytest.raises(ValueError, match="Unknown player"):
+    with pytest.raises(ValueError, match="Unable to retrieve data"):
         get_player_matches("Gaston Sanchez")
 
 from tennis_career.data import (

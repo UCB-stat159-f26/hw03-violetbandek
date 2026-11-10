@@ -71,11 +71,27 @@ def _calculate_ages(matches, player_dob):
 def get_player_matches(player_name):
     """Retrieve and clean a tennis player's career matches."""
     key = "".join(player_name.lower().split())
-    if key not in PLAYER_BIRTHDAYS:
-        raise ValueError(f"Unknown player: '{player_name}'.")
     raw = download_player_data(player_name)
+    birthday = PLAYER_BIRTHDAYS.get(key)
+    if birthday is None:
+        birthday = _get_player_birthday(player_name)
     matches = _parse_matches(raw)
     matches = _clean_matches(matches)
-    matches = _calculate_ages(matches, PLAYER_BIRTHDAYS[key])
+    matches = _calculate_ages(matches, birthday)
     matches = matches.dropna(subset=["date"])
     return matches.sort_values("date").reset_index(drop=True)
+
+def _get_player_birthday(player_name):
+    """Retrieve a player's birthday from Tennis Abstract."""
+    clean_name = "".join(player_name.split())
+    for prefix in ("wplayer", "player"):
+        url = f"https://www.tennisabstract.com/cgi-bin/{prefix}.cgi"
+        try:
+            response = requests.get(url, params={"p": clean_name}, timeout=30)
+            response.raise_for_status()
+        except requests.RequestException:
+            continue
+        match = re.search(r"\bvar\s+dob\s*=\s*['\"]?(\d{8})", response.text)
+        if match:
+            return pd.to_datetime(match.group(1), format="%Y%m%d")
+    raise ValueError(f"Unable to find birthday for '{player_name}'.")
