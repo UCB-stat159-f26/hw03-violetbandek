@@ -28,6 +28,8 @@ def plot_player_matches(matches, player_name="Tennis Player"):
         ax.scatter(subset["player_age"], subset["age_difference"],
                    color=color, s=9, alpha=0.85, label=label)
     _style_axes(ax, player_name)
+    ax.set_xlabel("Player's age (years)", fontsize=10)
+    ax.set_ylabel("Age difference (player - opponent, years)", fontsize=10)
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.08),
               ncol=2, frameon=False, fontsize=9)
     fig.subplots_adjust(top=0.78, bottom=0.12)
